@@ -1,7 +1,8 @@
 {
   "name": "hubot-prat",
   "dependencies": {
-    "websocket": ">=1.0.8"
+    "websocket": ">=1.0.8",
+    "underscore": ">=1.5.1"
   },
   "devDependencies": {
     "coffee-script": "1.1.3",

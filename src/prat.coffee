@@ -2,22 +2,25 @@
 
 WebsocketClient = require('websocket').client
 crypto = require('crypto')
+_u     = require('underscore')
 
 class PratBot extends Adapter
   prepare_query_string: (params) ->
     str = ""
-    str += [prop, '=', params[prop]].join('') for prop of params
+    keys = Object.keys(params)
+    keys = _u.sortBy(keys, (key) -> return key)
+    str += [key, '=', params[key]].join('') for key in keys
 
   generateSignature: (secret, method, path, body, params) ->
     body = if not body? then "" else body
     signature = secret + method.toUpperCase() + path + @prepare_query_string(params) + body
-    hash = crypto.createHash('sha256').update(signature).digest().toString()
+    hash = crypto.createHash('sha256').update(signature).digest()
     return (new Buffer(hash)).toString('base64').substring(0, 43)
 
   run: ->
     API_KEY = "c4fb2d41-aa35-4c26-80a7-d258ddf5e6cd"
     SECRET = "c0b4c821-0225-4073-b2c5-ee553da74a32"
-    expires = (new Date()).getTime()/1000 + 300
+    expires = parseInt((new Date()).getTime()/1000) + 300
     params = { "api_key": API_KEY, "expires": expires.toString() }
     params.signature = @generateSignature(SECRET, "GET", "/eventhub", "", params)
     urlparams = []
@@ -28,6 +31,7 @@ class PratBot extends Adapter
 
   onConnect: (connection) =>
     console.log('onConnect')
+    connection.send("something")
 
     connection.on 'error', @onError
     connection.on 'message', @onMessage
