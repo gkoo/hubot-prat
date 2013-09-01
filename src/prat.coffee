@@ -15,7 +15,9 @@ class PratBot extends Adapter
     body = if not body? then "" else body
     signature = secret + method.toUpperCase() + path + @prepare_query_string(params) + body
     hash = crypto.createHash('sha256').update(signature).digest()
-    return (new Buffer(hash)).toString('base64').substring(0, 43)
+    b64 = (new Buffer(hash)).toString('base64').substring(0, 43)
+    b64.replace(/+/g, '-')
+    b64.replace(/\//g, '_')
 
   run: ->
     API_KEY = "c4fb2d41-aa35-4c26-80a7-d258ddf5e6cd"
