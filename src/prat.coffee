@@ -10,6 +10,7 @@ class PratBot extends Adapter
     keys = Object.keys(params)
     keys = _u.sortBy(keys, (key) -> return key)
     str += [key, '=', params[key]].join('') for key in keys
+    return str
 
   generateSignature: (secret, method, path, body, params) ->
     body = if not body? then "" else body
@@ -32,30 +33,46 @@ class PratBot extends Adapter
     @client.connect 'ws://localhost:5000/eventhub?' + urlparams.join('&')
 
   onConnect: (connection) =>
-    console.log('onConnect')
-    connection.send("something")
+    if !@connected
+      @emit 'connected'
+      @connected = true
+    @connection = connection
 
-    connection.on 'error', @onError
     connection.on 'message', @onMessage
+    connection.on 'error', @onError
 
   onError: (error) =>
     console.log("Connection Error: " + error.toString())
 
   onMessage: (message) =>
-    console.log('onMessage')
-    console.log(message)
+    msg = JSON.parse(message.utf8Data)
+    msgText = msg.data.message
+    channel = msg.data.channel
+    user = @robot.brain.userForId msg.data.user.username
+    user.room = msg.data.channel
 
-    #user = @robot.brain.userForId message.data.user.username
-    #user.room = message.data.channel
-
-    #@receive new TextMessage(user, message)
+    @receive new TextMessage user, msgText
 
   send: (envelope, messages...) ->
-    console.log('sending')
     for msg in messages
       @robot.logger.debug "Sending to #{envelope.room}: #{msg}"
 
-      @ws.send("something")
+      outputJson =
+        action: "publish_message"
+        data:
+          message: msg
+          channel: envelope.room
+
+      @connection.send(JSON.stringify(outputJson))
+
+  reply: (envelope, messages...) ->
+    console.log('replying\n')
+    for msg in messages
+      @send envelope, "#{envelope.user.name}: #{msg}"
+
+  close: ->
+    # TODO: leave the chat
+    console.log('close')
 
 exports.use = (robot) ->
   new PratBot robot
