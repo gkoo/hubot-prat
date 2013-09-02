@@ -1,8 +1,11 @@
 {Adapter,Robot,TextMessage,EnterMessage,LeaveMessage} = require 'hubot'
 
 WebsocketClient = require('websocket').client
-crypto = require('crypto')
-_u     = require('underscore')
+crypto     = require('crypto')
+_u         = require('underscore')
+SERVER_URL = 'ws://localhost:5000/eventhub'
+API_KEY    = "[API KEY GOES HERE]"
+SECRET     = "[SECRET GOES HERE]"
 
 class PratBot extends Adapter
   prepare_query_string: (params) ->
@@ -21,8 +24,6 @@ class PratBot extends Adapter
     b64 = b64.replace(/\//g, '_')
 
   run: ->
-    API_KEY = "c4fb2d41-aa35-4c26-80a7-d258ddf5e6cd"
-    SECRET = "c0b4c821-0225-4073-b2c5-ee553da74a32"
     expires = parseInt((new Date()).getTime()/1000) + 300
     params = { "api_key": API_KEY, "expires": expires.toString() }
     params.signature = @generateSignature(SECRET, "GET", "/eventhub", "", params)
@@ -30,7 +31,7 @@ class PratBot extends Adapter
     urlparams.push [prop, params[prop]].join('=') for prop of params
     @client = new WebsocketClient()
     @client.on 'connect', @.onConnect
-    @client.connect 'ws://localhost:5000/eventhub?' + urlparams.join('&')
+    @client.connect SERVER_URL + '?' + urlparams.join('&')
 
   onConnect: (connection) =>
     if !@connected
