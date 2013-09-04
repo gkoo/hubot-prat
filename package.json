@@ -1,5 +1,15 @@
 {
   "name": "hubot-prat",
+  "version": "0.0.1",
+  "author": "Gordon Koo <gordon.koo@gmail.com>",
+  "keywords": ["hubot", "prat", "adapter"],
+  "licenses": [{
+    "type": "MIT"
+  }],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gkoo/hubot-prat.git"
+  },
   "dependencies": {
     "websocket": ">=1.0.8",
     "underscore": ">=1.5.1"

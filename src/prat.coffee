@@ -4,8 +4,8 @@ WebsocketClient = require('websocket').client
 crypto     = require('crypto')
 _u         = require('underscore')
 SERVER_URL = 'ws://localhost:5000/eventhub'
-API_KEY    = "[API KEY GOES HERE]"
-SECRET     = "[SECRET GOES HERE]"
+API_KEY    = "API_KEY_HERE"    # DEV: c4fb2d41-aa35-4c26-80a7-d258ddf5e6cd
+SECRET     = "SECRET_KEY_HERE" # DEV: c0b4c821-0225-4073-b2c5-ee553da74a32
 
 class PratBot extends Adapter
   prepare_query_string: (params) ->
@@ -47,12 +47,19 @@ class PratBot extends Adapter
 
   onMessage: (message) =>
     msg = JSON.parse(message.utf8Data)
-    msgText = msg.data.message
+    return unless msg.action == 'publish_message'
+    msgText = @preprocessText msg.data.message
     channel = msg.data.channel
     user = @robot.brain.userForId msg.data.user.username
     user.room = msg.data.channel
 
     @receive new TextMessage user, msgText
+
+  preprocessText: (str) ->
+    result = str
+    if match = str.match(/^\/img\s+(.*)/)
+      result = "#{@robot.name} image me #{match[1]}"
+    result
 
   send: (envelope, messages...) ->
     for msg in messages
@@ -67,7 +74,6 @@ class PratBot extends Adapter
       @connection.send(JSON.stringify(outputJson))
 
   reply: (envelope, messages...) ->
-    console.log('replying\n')
     for msg in messages
       @send envelope, "#{envelope.user.name}: #{msg}"
 
