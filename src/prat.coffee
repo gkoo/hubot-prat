@@ -47,7 +47,7 @@ class PratBot extends Adapter
 
   onMessage: (message) =>
     msg = JSON.parse(message.utf8Data)
-    return unless msg.action == 'publish_message'
+    return unless msg.action == 'publish_message' && msg?.data?.user?.username != HUBOT_NAME
     msgText = @preprocessText msg.data.message
     channel = msg.data.channel
     user = @robot.brain.userForId msg.data.user.username
@@ -59,6 +59,8 @@ class PratBot extends Adapter
     result = str
     if match = str.match(/^\/img\s+(.*)/)
       result = "#{@robot.name} image me #{match[1]}"
+    else if match = str.match(/^\/animate\s+(.*)/)
+      result = "#{@robot.name} animate me #{match[1]}"
     result
 
   send: (envelope, messages...) ->
