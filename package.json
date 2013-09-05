@@ -1,11 +1,14 @@
 {
   "name": "hubot-prat",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Gordon Koo <gordon.koo@gmail.com>",
   "keywords": ["hubot", "prat", "adapter"],
   "licenses": [{
     "type": "MIT"
   }],
+  "engines": {
+    "node": "0.10.11"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/gkoo/hubot-prat.git"
