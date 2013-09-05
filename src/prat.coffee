@@ -3,9 +3,6 @@
 WebsocketClient = require('websocket').client
 crypto     = require('crypto')
 _u         = require('underscore')
-SERVER_URL = 'ws://localhost:5000/eventhub'
-API_KEY    = "API_KEY_HERE"
-SECRET     = "SECRET_KEY_HERE"
 
 class PratBot extends Adapter
   prepare_query_string: (params) ->
@@ -25,13 +22,13 @@ class PratBot extends Adapter
 
   run: ->
     expires = parseInt((new Date()).getTime()/1000) + 300
-    params = { "api_key": API_KEY, "expires": expires.toString() }
-    params.signature = @generateSignature(SECRET, "GET", "/eventhub", "", params)
+    params = { "api_key": process.env.HUBOT_PRAT_API_KEY, "expires": expires.toString() }
+    params.signature = @generateSignature(process.env.HUBOT_PRAT_SECRET, "GET", "/eventhub", "", params)
     urlparams = []
     urlparams.push [prop, params[prop]].join('=') for prop of params
     @client = new WebsocketClient()
     @client.on 'connect', @.onConnect
-    @client.connect SERVER_URL + '?' + urlparams.join('&')
+    @client.connect process.env.HUBOT_PRAT_SERVER_URL + '?' + urlparams.join('&')
 
   onConnect: (connection) =>
     if !@connected
