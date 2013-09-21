@@ -1,6 +1,6 @@
 {
   "name": "hubot-prat",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Gordon Koo <gordon.koo@gmail.com>",
   "keywords": ["hubot", "prat", "adapter"],
   "licenses": [{
