@@ -28,7 +28,14 @@ class PratBot extends Adapter
     urlparams.push [prop, params[prop]].join('=') for prop of params
     @client = new WebsocketClient()
     @client.on 'connect', @.onConnect
+    @client.on 'connectFailed', (errorDescription) =>
+      @retryConnection()
     @client.connect process.env.HUBOT_PRAT_SERVER_URL + '?' + urlparams.join('&')
+
+  retryConnection: (wait_time_ms = 1000) =>
+    setTimeout(=>
+      @run()
+    , wait_time_ms)
 
   onConnect: (connection) =>
     if !@connected
@@ -38,9 +45,13 @@ class PratBot extends Adapter
 
     connection.on 'message', @onMessage
     connection.on 'error', @onError
+    connection.on 'close', @onClose
 
   onError: (error) =>
     console.log("Connection Error: " + error.toString())
+
+  onClose: (reasonCode, description) =>
+    @retryConnection()
 
   onMessage: (message) =>
     msg = JSON.parse(message.utf8Data)
